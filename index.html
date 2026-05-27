@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AUDITRIX</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Canvas visualizer background -->
+  <canvas id="visualizer"></canvas>
+
+  <!-- Ambient particles -->
+  <canvas id="particles"></canvas>
+
+  <!-- Main app container -->
+  <div id="app">
+
+    <!-- SCREEN: Intro / Menu principal -->
+    <div id="screen-menu" class="screen active">
+      <div class="logo-container">
+        <div class="logo-glow"></div>
+        <h1 class="logo-text">AUDITRIX</h1>
+        <p class="logo-sub">entraînement auditif</p>
+      </div>
+
+      <div class="worlds-grid">
+        <!-- Monde 1 -->
+        <div class="world-card unlocked" data-world="1" id="world-1">
+          <div class="world-icon">◈</div>
+          <div class="world-info">
+            <span class="world-name">MONTÉE / DESCENTE</span>
+            <span class="world-level">Monde I</span>
+          </div>
+          <div class="world-xp-bar"><div class="world-xp-fill" id="xp-bar-1"></div></div>
+        </div>
+
+        <!-- Monde 2 -->
+        <div class="world-card locked" data-world="2" id="world-2">
+          <div class="world-icon">◇</div>
+          <div class="world-info">
+            <span class="world-name">INTERVALLES</span>
+            <span class="world-level">Monde II</span>
+          </div>
+          <div class="world-lock">▲ 50 XP</div>
+        </div>
+
+        <!-- Monde 3 -->
+        <div class="world-card locked" data-world="3" id="world-3">
+          <div class="world-icon">◎</div>
+          <div class="world-info">
+            <span class="world-name">INTERVALLES+</span>
+            <span class="world-level">Monde III</span>
+          </div>
+          <div class="world-lock">▲ 150 XP</div>
+        </div>
+
+        <!-- Monde 4 -->
+        <div class="world-card locked" data-world="4" id="world-4">
+          <div class="world-icon">⬡</div>
+          <div class="world-info">
+            <span class="world-name">ACCORDS</span>
+            <span class="world-level">Monde IV</span>
+          </div>
+          <div class="world-lock">▲ 300 XP</div>
+        </div>
+
+        <!-- Monde 5 -->
+        <div class="world-card locked" data-world="5" id="world-5">
+          <div class="world-icon">∞</div>
+          <div class="world-info">
+            <span class="world-name">MÉMOIRE</span>
+            <span class="world-level">Monde V</span>
+          </div>
+          <div class="world-lock">▲ 500 XP</div>
+        </div>
+
+        <!-- Mode Découverte -->
+        <div class="world-card discover unlocked" data-world="discover" id="world-discover">
+          <div class="world-icon">∿</div>
+          <div class="world-info">
+            <span class="world-name">DÉCOUVERTE</span>
+            <span class="world-level">Exploration libre</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats globales -->
+      <div class="global-stats">
+        <div class="stat-item">
+          <span class="stat-val" id="total-xp">0</span>
+          <span class="stat-lbl">XP</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" id="best-streak">0</span>
+          <span class="stat-lbl">SÉRIE</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" id="total-played">0</span>
+          <span class="stat-lbl">JOUÉS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: Jeu -->
+    <div id="screen-game" class="screen">
+
+      <!-- Header jeu -->
+      <div class="game-header">
+        <button id="btn-back" class="icon-btn" title="Retour">←</button>
+        <div class="game-meta">
+          <span id="game-world-name" class="game-world-label"></span>
+        </div>
+        <div class="game-stats">
+          <span class="streak-display" id="streak-display">
+            <span id="streak-count">0</span>
+            <span class="streak-fire" id="streak-fire"></span>
+          </span>
+          <span class="xp-display" id="xp-display">0 XP</span>
+        </div>
+      </div>
+
+      <!-- Zone principale de jeu -->
+      <div class="game-main">
+
+        <!-- Bouton play central -->
+        <div class="play-zone" id="play-zone">
+          <button id="btn-play" class="play-button" title="Jouer (espace)">
+            <div class="play-ring play-ring-1"></div>
+            <div class="play-ring play-ring-2"></div>
+            <div class="play-ring play-ring-3"></div>
+            <span class="play-icon">▶</span>
+          </button>
+          <div class="play-hint" id="play-hint">appuie pour écouter</div>
+        </div>
+
+        <!-- Note de référence (pour accords) -->
+        <div class="root-note-display" id="root-note-display" style="display:none">
+          <span id="root-note-label"></span>
+        </div>
+
+        <!-- Zone réponses -->
+        <div class="answers-zone" id="answers-zone">
+          <!-- Généré dynamiquement -->
+        </div>
+
+        <!-- Feedback -->
+        <div class="feedback-overlay" id="feedback-overlay">
+          <div class="feedback-content" id="feedback-content"></div>
+        </div>
+
+        <!-- Combo display -->
+        <div class="combo-display" id="combo-display" style="display:none">
+          <span id="combo-text"></span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SCREEN: Découverte -->
+    <div id="screen-discover" class="screen">
+      <div class="game-header">
+        <button id="btn-back-discover" class="icon-btn">←</button>
+        <span class="game-world-label">DÉCOUVERTE</span>
+        <div></div>
+      </div>
+
+      <div class="discover-main">
+        <div class="discover-selector">
+          <label class="discover-label">TYPE</label>
+          <div class="discover-tabs" id="discover-type-tabs">
+            <button class="dtab active" data-type="interval">Intervalles</button>
+            <button class="dtab" data-type="chord">Accords</button>
+          </div>
+        </div>
+
+        <div class="discover-items" id="discover-items">
+          <!-- Généré dynamiquement -->
+        </div>
+
+        <div class="discover-play-zone">
+          <button class="discover-play-btn" id="discover-play-a">▶ A</button>
+          <button class="discover-compare-btn" id="discover-compare">⇄ COMPARER</button>
+          <button class="discover-play-btn" id="discover-play-b">▶ B</button>
+        </div>
+
+        <div class="discover-info" id="discover-info">
+          <!-- Info sur l'intervalle/accord sélectionné -->
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <!-- XP Popup -->
+  <div class="xp-popup" id="xp-popup"></div>
+
+  <!-- Fullscreen btn -->
+  <button id="btn-fullscreen" class="fullscreen-btn" title="Plein écran">⛶</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
