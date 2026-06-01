@@ -829,6 +829,7 @@ const UI = (() => {
   let waitingForPlay = true;
   let answered = false;
   let feedbackTimer = null;
+  let transitioning = false; // verrou entre deux exercices
 
   // Éléments DOM
   const screens = {
@@ -886,6 +887,7 @@ const UI = (() => {
   function nextExercise() {
     answered = false;
     waitingForPlay = true;
+    transitioning = false; // exercice prêt, on déverrouille
     clearTimeout(feedbackTimer);
 
     const ex = GameLogic.generate(currentWorld);
@@ -899,6 +901,7 @@ const UI = (() => {
     playBtn.classList.remove('playing');
     const hint = document.getElementById('play-hint');
     hint.textContent = 'appuie pour écouter';
+    playBtn.style.opacity = '';
 
     // Root note (pour monde 4)
     const rootDisplay = document.getElementById('root-note-display');
@@ -936,7 +939,7 @@ const UI = (() => {
   /* ── Jouer le son + activer boutons ── */
   function playCurrentExercise() {
     const ex = GameLogic.getCurrent();
-    if (!ex) return;
+    if (!ex || transitioning) return; // bloqué pendant la transition
 
     AudioEngine.resume();
     ex.play();
@@ -966,6 +969,7 @@ const UI = (() => {
   function handleAnswer(choiceId) {
     if (answered) return;
     answered = true;
+    transitioning = true; // verrou : on bloque le bouton play jusqu'au prochain exercice
 
     const ex = GameLogic.getCurrent();
     const isCorrect = choiceId === ex.answer;
@@ -996,6 +1000,12 @@ const UI = (() => {
       GameState.onWrong();
     }
     updateGameStats();
+
+    // Griser le bouton play pendant la transition
+    const playBtn = document.getElementById('btn-play');
+    playBtn.classList.remove('playing');
+    document.getElementById('play-hint').textContent = '···';
+    playBtn.style.opacity = '0.35';
 
     // Prochain exercice automatique
     feedbackTimer = setTimeout(() => {
